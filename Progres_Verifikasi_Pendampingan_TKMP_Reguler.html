@@ -14,12 +14,14 @@ button,.btn{border:0;border-radius:8px;padding:10px 14px;font-weight:600;cursor:
 .tablewrap{overflow:auto;border:1px solid #e5e7eb;border-radius:10px}table{border-collapse:collapse;width:100%;min-width:1050px;background:white}th{background:#f1f5f9;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:#475569;position:sticky;top:0;z-index:1}td,th{padding:12px;border-bottom:1px solid #e5e7eb;vertical-align:middle}td{font-size:13px}tbody tr:hover{background:#fafcff}td select,td input{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:7px;font:inherit;background:white}td.ket{min-width:220px}td.ver{min-width:190px}td.id{font-variant-numeric:tabular-nums}
 
 /* Warna Baris Berdasarkan Status */
-tr.row-berhasil { background-color: #dcfce7 !important; }
-tr.row-berhasil:hover { background-color: #bbf7d0 !important; }
-tr.row-gagal { background-color: #fee2e2 !important; }
-tr.row-gagal:hover { background-color: #fecaca !important; }
+tr.row-menunggu { background-color: #f1f5f9 !important; }
+tr.row-menunggu:hover { background-color: #e2e8f0 !important; }
 tr.row-progres { background-color: #fef9c3 !important; }
 tr.row-progres:hover { background-color: #fef08a !important; }
+tr.row-berkas { background-color: #dcfce7 !important; }
+tr.row-berkas:hover { background-color: #bbf7d0 !important; }
+tr.row-gagal { background-color: #fee2e2 !important; }
+tr.row-gagal:hover { background-color: #fecaca !important; }
 
 .empty{text-align:center;padding:40px;color:#64748b}.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;color:#64748b;font-size:13px}
 .status{font-size:12px;color:#15803d}.hint{font-size:12px;color:#64748b;margin-top:8px}
@@ -35,15 +37,25 @@ tr.row-progres:hover { background-color: #fef08a !important; }
 <div class="top"><div><h1>Verifikasi Peserta Binaan</h1><div class="sub">Upload file CSV untuk menampilkan data dalam tabel dan mencatat hasil verifikasi peserta.</div></div><button class="green" id="exportBtn" disabled>Ekspor Hasil CSV</button></div>
 <div class="panel"><div class="upload"><input type="file" id="fileInput" accept=".csv,text/csv"><button class="secondary" id="clearBtn">Bersihkan Data</button></div><div class="hint">Kolom asli dari file akan ditampilkan otomatis. Kolom Verifikasi dan Keterangan ditambahkan di bagian paling kanan.</div><div class="stats" id="stats"></div></div>
 <div class="panel">
-<div class="tools"><input id="search" placeholder="Cari nama, nomor telepon, ID..." style="flex:1;min-width:220px"><select id="filter"><option value="">Semua status</option><option>Berhasil dihubungi</option><option>Gagal dihubungi</option><option>Progres pengerjaan</option></select><span class="status" id="saveStatus">Belum ada data</span></div>
+<div class="tools">
+  <input id="search" placeholder="Cari nama, nomor telepon, ID..." style="flex:1;min-width:220px">
+  <select id="filter">
+    <option value="">Semua status</option>
+    <option>Menunggu respon</option>
+    <option>Progres pengerjaan</option>
+    <option>Berkas lengkap</option>
+    <option>Gagal dihubungi</option>
+  </select>
+  <span class="status" id="saveStatus">Belum ada data</span>
+</div>
 <div class="tablewrap"><table><thead id="thead"></thead><tbody id="tbody"><tr><td class="empty">Silakan upload file CSV untuk mulai.</td></tr></tbody></table></div>
 <div class="pagination" id="pagination"></div>
 <div class="foot"><span id="count">0 data</span><span>Semua file yang diunggah digabungkan; data lama dan progres tetap tersimpan di browser ini.</span></div></div>
 </div>
 <script>
-const STATUS=['Berhasil dihubungi','Gagal dihubungi','Progres pengerjaan'];
-const STORAGE_KEY='verifikasiPeserta:database:v2';
-const PAGE_SIZE=10; // Batas maksimal 10 baris per halaman
+const STATUS=['Menunggu respon','Progres pengerjaan','Berkas lengkap','Gagal dihubungi'];
+const STORAGE_KEY='verifikasiPeserta:database:v3';
+const PAGE_SIZE=10; 
 let headers=[],rows=[];
 let currentPage=1;
 
@@ -57,10 +69,11 @@ function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({headers,row
 function stats(){let done=STATUS.map(s=>rows.filter(r=>r.Verifikasi===s).length);$('stats').innerHTML='<div class="stat">Total peserta tersimpan<b>'+rows.length+'</b></div>'+STATUS.map((s,i)=>'<div class="stat">'+s+'<b>'+done[i]+'</b></div>').join('')}
 
 function getRowClass(verifikasi){
-  if(verifikasi==='Berhasil dihubungi') return 'row-berhasil';
-  if(verifikasi==='Gagal dihubungi') return 'row-gagal';
+  if(verifikasi==='Menunggu respon') return 'row-menunggu';
   if(verifikasi==='Progres pengerjaan') return 'row-progres';
-  return '';
+  if(verifikasi==='Berkas lengkap') return 'row-berkas';
+  if(verifikasi==='Gagal dihubungi') return 'row-gagal';
+  return 'row-menunggu'; // Default jika belum dipilih
 }
 
 function renderPagination(totalRows){
@@ -105,7 +118,7 @@ function render(){
   $('thead').innerHTML='<tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'<th>Verifikasi</th><th>Keterangan</th></tr>';
   $('tbody').innerHTML=paginatedData.length?paginatedData.map(r=>{
     let rowClass=getRowClass(r.Verifikasi);
-    return '<tr class="'+rowClass+'">'+headers.map(h=>'<td class="'+(h.toLowerCase().includes('id')?'id':'')+'">'+esc(r[h]??'')+'</td>').join('')+'<td class="ver"><select data-i="'+r._i+'" data-field="Verifikasi"><option value="">Pilih verifikasi</option>'+STATUS.map(s=>'<option '+(r.Verifikasi===s?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td class="ket"><input data-i="'+r._i+'" data-field="Keterangan" value="'+escAttr(r.Keterangan??'')+'" placeholder="Tambahkan keterangan..."></td></tr>';
+    return '<tr class="'+rowClass+'">'+headers.map(h=>'<td class="'+(h.toLowerCase().includes('id')?'id':'')+'">'+esc(r[h]??'')+'</td>').join('')+'<td class="ver"><select data-i="'+r._i+'" data-field="Verifikasi">'+STATUS.map(s=>'<option '+(r.Verifikasi===s?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td class="ket"><input data-i="'+r._i+'" data-field="Keterangan" value="'+escAttr(r.Keterangan??'')+'" placeholder="Tambahkan keterangan..."></td></tr>';
   }).join(''):'<tr><td class="empty" colspan="'+(headers.length+2)+'">Belum ada data. Silakan upload file CSV.</td></tr>';
   
   $('count').textContent=totalShown+' ditampilkan dari '+rows.length+' peserta tersimpan';
@@ -117,9 +130,9 @@ function render(){
 
 function mergeImport(parsed){
   const incomingHeaders=parsed[0].map(x=>x.trim()).filter(Boolean);if(!incomingHeaders.length)throw new Error('Header CSV tidak ditemukan.');
-  const oldCount=rows.length;const allHeaders=[...new Set([...headers,...incomingHeaders])];rows.forEach(r=>{allHeaders.forEach(h=>{if(!(h in r))r[h]=''});if(!('Verifikasi'in r))r.Verifikasi='';if(!('Keterangan'in r))r.Keterangan=''});
+  const oldCount=rows.length;const allHeaders=[...new Set([...headers,...incomingHeaders])];rows.forEach(r=>{allHeaders.forEach(h=>{if(!(h in r))r[h]=''});if(!('Verifikasi'in r))r.Verifikasi='Menunggu respon';if(!('Keterangan'in r))r.Keterangan=''});
   let map=new Map(rows.map((r,i)=>[recordKey(r),i]));let added=0,duplicates=0;
-  parsed.slice(1).filter(a=>a.some(v=>String(v??'').trim()!=='')).forEach(line=>{let obj={};allHeaders.forEach(h=>obj[h]='');incomingHeaders.forEach((h,i)=>obj[h]=line[i]??'');obj.Verifikasi='';obj.Keterangan='';let key=recordKey(obj);
+  parsed.slice(1).filter(a=>a.some(v=>String(v??'').trim()!=='')).forEach(line=>{let obj={};allHeaders.forEach(h=>obj[h]='');incomingHeaders.forEach((h,i)=>obj[h]=line[i]??'');obj.Verifikasi='Menunggu respon';obj.Keterangan='';let key=recordKey(obj);
   if(map.has(key)){duplicates++;let existing=rows[map.get(key)];incomingHeaders.forEach(h=>{if(!String(existing[h]??'').trim()&&String(obj[h]??'').trim())existing[h]=obj[h]})}
   else{allHeaders.forEach(h=>{if(!(h in obj))obj[h]=''});rows.push(obj);map.set(key,rows.length-1);added++}});
   headers=allHeaders;save();currentPage=1;render();$('saveStatus').textContent=`Import selesai: ${added} data baru ditambahkan, ${duplicates} duplikat dilewati. ${oldCount} data lama tetap tersimpan.`
