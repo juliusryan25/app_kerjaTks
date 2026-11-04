@@ -906,98 +906,104 @@
             let rekapData = { masuk: {}, keluar: {} };
             let totalMasukBulan = new Array(colBulan).fill(0);
             let totalKeluarBulan = new Array(colBulan).fill(0);
+            let kasMasihBulan = new Array(colBulan).fill(0);
+            let saldoAkhirBulan = new Array(colBulan).fill(0);
 
             transaksiHarian.forEach(t => {
-                if (t.bulan > colBulan) return; 
+                if (t.bulan > colBulan) return;
                 let targetMap = t.jenis === 'masuk' ? rekapData.masuk : rekapData.keluar;
-                if(!targetMap[t.ket]) { targetMap[t.ket] = new Array(colBulan).fill(0); }
+                if (!targetMap[t.ket]) targetMap[t.ket] = new Array(colBulan).fill(0);
                 targetMap[t.ket][t.bulan - 1] += t.nominal;
-                if(t.jenis === 'masuk') totalMasukBulan[t.bulan - 1] += t.nominal;
-                if(t.jenis === 'keluar') totalKeluarBulan[t.bulan - 1] += t.nominal;
+                if (t.jenis === 'masuk') totalMasukBulan[t.bulan - 1] += t.nominal;
+                if (t.jenis === 'keluar') totalKeluarBulan[t.bulan - 1] += t.nominal;
             });
 
+            // Saldo akhir bulan sebelumnya otomatis menjadi Kas Masih bulan berikutnya.
+            for (let b = 0; b < colBulan; b++) {
+                kasMasihBulan[b] = b === 0 ? 0 : saldoAkhirBulan[b - 1];
+                saldoAkhirBulan[b] = kasMasihBulan[b] + totalMasukBulan[b] - totalKeluarBulan[b];
+            }
+
+            // Preview rekapitulasi
             let uiHtml = `<thead><tr class="bg-blue-100 text-blue-800"><th class="border p-3 text-left w-1/3">Keterangan</th>`;
-            for(let b=1; b<=colBulan; b++) uiHtml += `<th class="border p-3 text-right">Bulan ${b}</th>`;
+            for (let b = 1; b <= colBulan; b++) uiHtml += `<th class="border p-3 text-right">Bulan ${b}</th>`;
             uiHtml += `</tr></thead><tbody>`;
 
-            uiHtml += `<tr class="bg-green-50 font-bold text-green-800"><td colspan="${colBulan+1}" class="border p-2 px-4">KAS MASUK</td></tr>`;
+            uiHtml += `<tr class="bg-green-50 font-bold text-green-800"><td colspan="${colBulan + 1}" class="border p-2 px-4">KAS MASUK</td></tr>`;
+            uiHtml += `<tr><td class="border p-2 pl-6 font-semibold">Kas Masih (Saldo Bulan Sebelumnya)</td>`;
+            for (let b = 0; b < colBulan; b++) uiHtml += `<td class="border p-2 text-right">${formatRp(kasMasihBulan[b])}</td>`;
+            uiHtml += `</tr>`;
             for (const [ket, arrNominal] of Object.entries(rekapData.masuk)) {
                 uiHtml += `<tr><td class="border p-2 pl-6">${ket}</td>`;
-                for(let b=0; b<colBulan; b++) uiHtml += `<td class="border p-2 text-right">${arrNominal[b] ? formatRp(arrNominal[b]) : '-'}</td>`;
+                for (let b = 0; b < colBulan; b++) uiHtml += `<td class="border p-2 text-right">${arrNominal[b] ? formatRp(arrNominal[b]) : '-'}</td>`;
                 uiHtml += `</tr>`;
             }
             uiHtml += `<tr class="bg-green-100 font-bold"><td class="border p-2 text-right">TOTAL KAS MASUK</td>`;
-            for(let b=0; b<colBulan; b++) uiHtml += `<td class="border p-2 text-right text-green-800">${formatRp(totalMasukBulan[b])}</td>`;
+            for (let b = 0; b < colBulan; b++) uiHtml += `<td class="border p-2 text-right text-green-800">${formatRp(kasMasihBulan[b] + totalMasukBulan[b])}</td>`;
             uiHtml += `</tr>`;
 
-            uiHtml += `<tr class="bg-red-50 font-bold text-red-800"><td colspan="${colBulan+1}" class="border p-2 px-4 mt-2">KAS KELUAR</td></tr>`;
+            uiHtml += `<tr class="bg-red-50 font-bold text-red-800"><td colspan="${colBulan + 1}" class="border p-2 px-4 mt-2">KAS KELUAR</td></tr>`;
             for (const [ket, arrNominal] of Object.entries(rekapData.keluar)) {
                 uiHtml += `<tr><td class="border p-2 pl-6">${ket}</td>`;
-                for(let b=0; b<colBulan; b++) uiHtml += `<td class="border p-2 text-right">${arrNominal[b] ? formatRp(arrNominal[b]) : '-'}</td>`;
+                for (let b = 0; b < colBulan; b++) uiHtml += `<td class="border p-2 text-right">${arrNominal[b] ? formatRp(arrNominal[b]) : '-'}</td>`;
                 uiHtml += `</tr>`;
             }
             uiHtml += `<tr class="bg-red-100 font-bold"><td class="border p-2 text-right">TOTAL KAS KELUAR</td>`;
-            for(let b=0; b<colBulan; b++) uiHtml += `<td class="border p-2 text-right text-red-800">${formatRp(totalKeluarBulan[b])}</td>`;
+            for (let b = 0; b < colBulan; b++) uiHtml += `<td class="border p-2 text-right text-red-800">${formatRp(totalKeluarBulan[b])}</td>`;
             uiHtml += `</tr>`;
 
             uiHtml += `<tr class="bg-blue-600 text-white font-black text-base md:text-lg"><td class="border p-3 text-right">SALDO AKHIR BULAN</td>`;
-            for(let b=0; b<colBulan; b++) uiHtml += `<td class="border p-3 text-right">${formatRp(totalMasukBulan[b] - totalKeluarBulan[b])}</td>`;
+            for (let b = 0; b < colBulan; b++) uiHtml += `<td class="border p-3 text-right">${formatRp(saldoAkhirBulan[b])}</td>`;
             uiHtml += `</tr></tbody>`;
             document.getElementById('table-rekap-preview').innerHTML = uiHtml;
 
-            let pdfHead = `<tr style="background: #f8f9fa;"><th style="text-align: left; width: ${100 - (colBulan * (60/colBulan))}%;">Keterangan</th>`;
-            for(let b=1; b<=colBulan; b++) pdfHead += `<th style="width: ${60/colBulan}%;">Bulan ${b}</th>`;
+            // Rekap arus kas pada PDF
+            let pdfHead = `<tr style="background: #f8f9fa;"><th style="text-align: left; width: ${100 - (colBulan * (60 / colBulan))}%;">Keterangan</th>`;
+            for (let b = 1; b <= colBulan; b++) pdfHead += `<th style="width: ${60 / colBulan}%;">Bulan ${b}</th>`;
             pdfHead += `</tr>`;
             document.getElementById('out-thead-kas').innerHTML = pdfHead;
 
             let pdfBody = `<tr><td colspan="${colBulan + 1}" style="background:#eafaf1;"><b>KAS MASUK:</b></td></tr>`;
+            pdfBody += `<tr><td style="height:30px;"><b>Kas Masih (Saldo Bulan Sebelumnya)</b></td>`;
+            for (let b = 0; b < colBulan; b++) pdfBody += `<td align="right">${formatRp(kasMasihBulan[b])}</td>`;
+            pdfBody += `</tr>`;
             for (const [ket, arrNominal] of Object.entries(rekapData.masuk)) {
                 pdfBody += `<tr><td style="height:30px;">${ket}</td>`;
-                for(let b=0; b<colBulan; b++) pdfBody += `<td align="right">${arrNominal[b] ? formatRp(arrNominal[b]) : ''}</td>`;
+                for (let b = 0; b < colBulan; b++) pdfBody += `<td align="right">${arrNominal[b] ? formatRp(arrNominal[b]) : ''}</td>`;
                 pdfBody += `</tr>`;
             }
             pdfBody += `<tr style="background:#fdfefe;"><td><b>TOTAL KAS MASUK</b></td>`;
-            for(let b=0; b<colBulan; b++) pdfBody += `<td align="right"><b>${formatRp(totalMasukBulan[b])}</b></td>`;
+            for (let b = 0; b < colBulan; b++) pdfBody += `<td align="right"><b>${formatRp(kasMasihBulan[b] + totalMasukBulan[b])}</b></td>`;
             pdfBody += `</tr><tr><td colspan="${colBulan + 1}" style="height:10px; border:none;"></td></tr>`;
-            
+
             pdfBody += `<tr><td colspan="${colBulan + 1}" style="background:#fdedec;"><b>KAS KELUAR:</b></td></tr>`;
             for (const [ket, arrNominal] of Object.entries(rekapData.keluar)) {
                 pdfBody += `<tr><td style="height:30px;">${ket}</td>`;
-                for(let b=0; b<colBulan; b++) pdfBody += `<td align="right">${arrNominal[b] ? formatRp(arrNominal[b]) : ''}</td>`;
+                for (let b = 0; b < colBulan; b++) pdfBody += `<td align="right">${arrNominal[b] ? formatRp(arrNominal[b]) : ''}</td>`;
                 pdfBody += `</tr>`;
             }
             pdfBody += `<tr style="background:#fdfefe;"><td><b>TOTAL KAS KELUAR</b></td>`;
-            for(let b=0; b<colBulan; b++) pdfBody += `<td align="right"><b>${formatRp(totalKeluarBulan[b])}</b></td>`;
+            for (let b = 0; b < colBulan; b++) pdfBody += `<td align="right"><b>${formatRp(totalKeluarBulan[b])}</b></td>`;
             pdfBody += `</tr><tr><td colspan="${colBulan + 1}" style="height:10px; border:none;"></td></tr>`;
-            
-            pdfBody += `<tr style="background:#f8f9fa;"><td style="font-size:16px;"><b>SALDO AKHIR</b></td>`;
-            for(let b=0; b<colBulan; b++) pdfBody += `<td align="right" style="font-size:16px;"><b>${formatRp(totalMasukBulan[b] - totalKeluarBulan[b])}</b></td>`;
+
+            pdfBody += `<tr style="background:#f8f9fa;"><td style="font-size:16px;"><b>SALDO AKHIR BULAN</b></td>`;
+            for (let b = 0; b < colBulan; b++) pdfBody += `<td align="right" style="font-size:16px;"><b>${formatRp(saldoAkhirBulan[b])}</b></td>`;
             pdfBody += `</tr>`;
             document.getElementById('out-aruskas-body').innerHTML = pdfBody;
 
             let pdfHarian = '';
-            if(transaksiHarian.length === 0) {
+            if (transaksiHarian.length === 0) {
                 pdfHarian = `<tr><td colspan="6" style="text-align:center; height:50px;">Belum ada transaksi</td></tr>`;
             } else {
                 let sortedHarian = [...transaksiHarian].sort((a, b) => a.id - b.id);
                 sortedHarian.forEach((t, index) => {
                     let textJenis = t.jenis === 'masuk' ? 'Kas Masuk' : 'Kas Keluar';
                     let colorJenis = t.jenis === 'masuk' ? 'green' : 'red';
-                    pdfHarian += `
-                        <tr>
-                            <td align="center">${index + 1}</td>
-                            <td align="center">Bulan ${t.bulan}</td>
-                            <td align="center">${t.tgl || '-'}</td>
-                            <td align="center" style="color:${colorJenis}; font-weight:bold;">${textJenis}</td>
-                            <td>${t.ket}</td>
-                            <td align="right">${formatRp(t.nominal)}</td>
-                        </tr>
-                    `;
+                    pdfHarian += `<tr><td align="center">${index + 1}</td><td align="center">Bulan ${t.bulan}</td><td align="center">${t.tgl || '-'}</td><td align="center" style="color:${colorJenis}; font-weight:bold;">${textJenis}</td><td>${t.ket}</td><td align="right">${formatRp(t.nominal)}</td></tr>`;
                 });
             }
             document.getElementById('out-harian-body').innerHTML = pdfHarian;
-
-            syncDataToPDF(); 
+            syncDataToPDF();
         }
 
         function syncDataToPDF() {
