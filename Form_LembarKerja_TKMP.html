@@ -79,7 +79,6 @@
         .step-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Animasi Ikon Geser Horizontal */
         @keyframes swipeHorizontal {
             0%, 100% { transform: translateX(0); }
             50% { transform: translateX(6px); }
@@ -89,7 +88,6 @@
             animation: swipeHorizontal 1.2s infinite ease-in-out;
         }
 
-        /* Animasi Getar saat Error Validasi */
         @keyframes shakeError {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-6px); }
@@ -128,21 +126,39 @@
         </div>
     </div>
 
-    <!-- MODAL KONFIRMASI RESET DRAF -->
+    <!-- MODAL KONFIRMASI RESET GLOBAL -->
     <div id="reset-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-t-4 border-amber-500 animate-[fadeIn_0.2s_ease-in-out]">
             <div class="flex items-center gap-3 text-amber-600 mb-3">
                 <i class="fa-solid fa-rotate-left text-2xl"></i>
                 <h3 class="text-xl font-extrabold">Reset Semua Isian?</h3>
             </div>
-            <p class="text-gray-600 text-sm md:text-base mb-6 leading-relaxed">Seluruh data draf yang tersimpan (Identitas, Ide Usaha, Rencana, Pemasaran, dan Buku Kas) akan dihapus bersih. Tindakan ini tidak dapat dibatalkan.</p>
+            <p class="text-gray-600 text-sm md:text-base mb-6 leading-relaxed">Seluruh data draf yang tersimpan akan dihapus bersih. Tindakan ini tidak dapat dibatalkan.</p>
             <div class="flex justify-end gap-2">
-                <button onclick="closeResetModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-4 py-2.5 rounded-lg transition">
-                    Batal
-                </button>
-                <button onclick="confirmResetDraft()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-lg shadow transition">
-                    Ya, Hapus Semua
-                </button>
+                <button onclick="closeResetModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-4 py-2.5 rounded-lg transition">Batal</button>
+                <button onclick="confirmResetDraft()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-lg shadow transition">Ya, Hapus Semua</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW DOKUMEN GOOGLE DRIVE -->
+    <div id="drive-preview-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center p-2 md:p-6 no-print">
+        <div class="bg-white rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-[fadeIn_0.2s_ease-in-out]">
+            <div class="flex items-center justify-between px-6 py-4 bg-gray-900 text-white">
+                <h3 class="text-base md:text-lg font-bold truncate" id="preview-modal-title"><i class="fa-solid fa-file-pdf mr-2 text-red-400"></i>Preview Contoh</h3>
+                <button onclick="closeDrivePreviewModal()" class="text-gray-300 hover:text-white text-xl font-bold p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 bg-gray-100 relative w-full h-full">
+                <iframe id="drive-preview-iframe" src="" class="w-full h-full border-0"></iframe>
+            </div>
+            <div class="px-6 py-3 bg-gray-50 border-t flex flex-wrap justify-between items-center gap-2 text-xs md:text-sm">
+                <span class="text-gray-500">Jika preview tidak muncul, gunakan tombol Buka Tab Baru di bawah.</span>
+                <div class="flex gap-2">
+                    <a id="preview-external-link" href="#" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-external-link-alt"></i> Buka Tab Baru
+                    </a>
+                    <button onclick="closeDrivePreviewModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg transition">Tutup</button>
+                </div>
             </div>
         </div>
     </div>
@@ -163,7 +179,7 @@
                 <span>Draf otomatis tersimpan di browser</span>
             </div>
             <button onclick="openResetModal()" class="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg font-semibold transition flex items-center gap-1.5 border border-transparent hover:border-red-200">
-                <i class="fa-solid fa-trash-can"></i> Kosongkan / Reset Form
+                <i class="fa-solid fa-trash-can"></i> Kosongkan / Reset Semua Form
             </button>
         </div>
 
@@ -181,7 +197,10 @@
 
             <!-- LANGKAH 1 -->
             <div id="step1" class="step-content active">
-                <div class="mb-6 border-b pb-4"><h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-regular fa-id-card mr-2"></i>Langkah 1: Identitas Anda</h2><p class="text-gray-500 text-sm md:text-base">Mari mulai dengan mengisi nama dan ID TKM Anda. <span class="text-red-500 font-semibold">(Wajib Diisi)</span></p></div>
+                <div class="mb-6 border-b pb-4">
+                    <h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-regular fa-id-card mr-2"></i>Langkah 1: Identitas Anda</h2>
+                    <p class="text-gray-500 text-sm md:text-base">Mari mulai dengan mengisi nama dan ID TKM Anda. <span class="text-red-500 font-semibold">(Wajib Diisi)</span></p>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200"><label class="block text-gray-700 font-bold mb-2">Nama Lengkap (TKMP) <span class="text-red-500">*</span></label><input type="text" id="in-nama" class="w-full border border-gray-300 p-3 rounded-lg text-base md:text-lg" placeholder="Contoh: Budi Santoso" oninput="clearError(this); syncDataToPDF(); saveDraft()"></div>
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200"><label class="block text-gray-700 font-bold mb-2">Nomor ID TKMP <span class="text-red-500">*</span></label><input type="text" id="in-id" class="w-full border border-gray-300 p-3 rounded-lg text-base md:text-lg" placeholder="Masukkan Nomor ID TKMP" oninput="clearError(this); syncDataToPDF(); saveDraft()"></div>
@@ -191,7 +210,20 @@
 
             <!-- LANGKAH 2 -->
             <div id="step2" class="step-content">
-                <div class="mb-6 border-b pb-4"><h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-regular fa-lightbulb mr-2"></i>Langkah 2: Deskripsi Ide Usaha</h2><p class="text-gray-500 text-sm">Seluruh pertanyaan ide usaha di bawah ini <span class="text-red-500 font-semibold">wajib diisi lengkap</span> untuk mengunduh File 1 (Ide Usaha).</p></div>
+                <div class="mb-6 border-b pb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-regular fa-lightbulb mr-2"></i>Langkah 2: Deskripsi Ide Usaha</h2>
+                        <p class="text-gray-500 text-sm">Seluruh pertanyaan ide usaha di bawah ini <span class="text-red-500 font-semibold">wajib diisi lengkap</span>.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="showExampleModal('ide')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-eye"></i> Lihat Contoh
+                        </button>
+                        <button onclick="resetCategoryForm('ide')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Form Ini
+                        </button>
+                    </div>
+                </div>
                 <div class="space-y-5">
                     <div><label class="block font-bold text-gray-700 mb-1">1. Apa Produk dan Merek Produk Anda? <span class="text-red-500">*</span></label><textarea id="in-ide-produk" class="w-full border border-gray-300 rounded-lg p-3 h-20 bg-gray-50" oninput="clearError(this); syncDataToPDF(); saveDraft()"></textarea></div>
                     <div><label class="block font-bold text-gray-700 mb-1">2. Siapa Target Pembeli Anda? <span class="text-red-500">*</span></label><textarea id="in-ide-siapa" class="w-full border border-gray-300 rounded-lg p-3 h-24 bg-gray-50" oninput="clearError(this); syncDataToPDF(); saveDraft()"></textarea></div>
@@ -210,12 +242,21 @@
 
             <!-- LANGKAH 3 -->
             <div id="step3" class="step-content">
-                <div class="mb-4 border-b pb-4">
-                    <h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-solid fa-list-check mr-2"></i>Langkah 3: Rencana Bisnis</h2>
-                    <p class="text-gray-500 text-sm mt-1"><b class="text-red-600">Wajib mengisi minimal 2 baris kegiatan.</b> Isi seluruh kolom pada setiap baris kegiatan.</p>
+                <div class="mb-4 border-b pb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-solid fa-list-check mr-2"></i>Langkah 3: Rencana Bisnis</h2>
+                        <p class="text-gray-500 text-sm mt-1"><b class="text-red-600">Wajib mengisi minimal 2 baris kegiatan.</b></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="showExampleModal('rencana')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-eye"></i> Lihat Contoh
+                        </button>
+                        <button onclick="resetCategoryForm('rencana')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Form Ini
+                        </button>
+                    </div>
                 </div>
 
-                <!-- PETUNJUK GESER HORIZONTAL -->
                 <div class="flex items-center gap-2 text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg mb-3">
                     <i class="fa-solid fa-arrows-left-right text-amber-600 animate-swipe"></i>
                     <span><b>Tips:</b> Geser tabel ke kanan / kiri untuk melihat dan mengisi seluruh kolom.</span>
@@ -245,7 +286,20 @@
 
             <!-- LANGKAH 4 -->
             <div id="step4" class="step-content">
-                <div class="mb-6 border-b pb-4"><h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-solid fa-store mr-2"></i>Langkah 4: Pemasaran (4P)</h2><p class="text-gray-500 text-sm">Lengkapi target pelanggan dan keempat strategi pemasaran (4P) di bawah ini.</p></div>
+                <div class="mb-6 border-b pb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-solid fa-store mr-2"></i>Langkah 4: Pemasaran (4P)</h2>
+                        <p class="text-gray-500 text-sm">Lengkapi target pelanggan dan keempat strategi pemasaran (4P).</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="showExampleModal('pemasaran')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-eye"></i> Lihat Contoh
+                        </button>
+                        <button onclick="resetCategoryForm('pemasaran')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Form Ini
+                        </button>
+                    </div>
+                </div>
                 <div class="space-y-5">
                     <div><label class="block font-bold text-gray-700 mb-1">Target Pelanggan Utama: <span class="text-red-500">*</span></label><textarea id="in-4p-target" class="w-full border border-gray-300 rounded-lg p-3 h-20 bg-gray-50" oninput="clearError(this); syncDataToPDF(); saveDraft()"></textarea></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -263,9 +317,19 @@
 
             <!-- LANGKAH 5 -->
             <div id="step5" class="step-content">
-                <div class="mb-4 border-b pb-4">
-                    <h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-solid fa-wallet mr-2"></i>Langkah 5: Buku Kas Keuangan</h2>
-                    <p class="text-gray-500 text-sm md:text-base">Catat uang masuk dan keluar.</p>
+                <div class="mb-4 border-b pb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-green-700"><i class="fa-solid fa-wallet mr-2"></i>Langkah 5: Buku Kas Keuangan</h2>
+                        <p class="text-gray-500 text-sm md:text-base">Catat uang masuk dan keluar.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="showExampleModal('keuangan')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-eye"></i> Lihat Contoh
+                        </button>
+                        <button onclick="resetCategoryForm('keuangan')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Form Ini
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-4 mb-4">
@@ -295,7 +359,6 @@
                     <div class="lg:col-span-2">
                         <h3 class="font-bold text-lg text-gray-700 mb-2"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Riwayat Transaksi yang Dicatat</h3>
                         
-                        <!-- PETUNJUK GESER HORIZONTAL -->
                         <div class="flex items-center gap-2 text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg mb-3">
                             <i class="fa-solid fa-arrows-left-right text-amber-600 animate-swipe"></i>
                             <span><b>Tips:</b> Geser tabel ke kanan / kiri jika kolom tabel terpotong di layar HP.</span>
@@ -321,7 +384,6 @@
             <div id="step6" class="step-content">
                 <div class="mb-6 border-b pb-4"><h2 class="text-xl md:text-2xl font-bold text-blue-700"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Langkah 6: Selesai! Preview & Unduh Laporan</h2></div>
                 
-                <!-- PETUNJUK GESER HORIZONTAL -->
                 <div class="flex items-center gap-2 text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 px-3 py-2 rounded-lg mb-3">
                     <i class="fa-solid fa-arrows-left-right text-amber-600 animate-swipe"></i>
                     <span><b>Tips:</b> Geser tabel rekapitulasi ke kanan / kiri untuk melihat semua bulan.</span>
@@ -332,10 +394,9 @@
                     <table class="w-full border-collapse bg-white text-sm shadow-sm min-w-[550px]" id="table-rekap-preview"></table>
                 </div>
 
-                <!-- KOTAK OPSI UNDUH FILE PDF -->
                 <div class="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-5 md:p-8 text-center shadow-sm">
                     <h3 class="text-lg md:text-xl font-extrabold text-yellow-900 mb-2"><i class="fa-solid fa-file-circle-check mr-1"></i> Pilih File Laporan yang Ingin Diunduh</h3>
-                    <p class="text-yellow-800 text-xs md:text-sm mb-5 max-w-xl mx-auto">Anda dapat mengunduh <b>Semua 4 File sekaligus</b>, atau memilih <b>salah satu file saja</b>. Sistem hanya akan memeriksa kelengkapan form sesuai file yang Anda pilih.</p>
+                    <p class="text-yellow-800 text-xs md:text-sm mb-5 max-w-xl mx-auto">Anda dapat mengunduh <b>Semua 4 File sekaligus</b>, atau memilih <b>salah satu file saja</b>.</p>
                     
                     <div class="max-w-md mx-auto mb-6 text-left">
                         <label class="block text-xs font-bold uppercase tracking-wider text-yellow-900 mb-2">Opsi Download File:</label>
@@ -360,13 +421,12 @@
         </div>
     </div>
 
-    <!-- AREA PREVIEW PDF (DIKUNCI AGAR TIDAK MEMICU ZOOM-OUT DI MOBILE) -->
+    <!-- AREA PREVIEW PDF -->
     <div id="pdf-container" class="fixed top-0 left-0 w-0 h-0 opacity-0 pointer-events-none -z-50 overflow-hidden">
         
-        <!-- PAGE COVER: SAMPUL LAPORAN -->
+        <!-- PAGE COVER -->
         <div class="pdf-wrapper"><div id="page-cover" class="cover-page">
             <div class="cover-blue-shape"></div>
-            <!-- LOGO KEMNAKER RI (VEKTOR SVG RESOLUSI TINGGI) -->
             <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000' width='100%25' height='100%25'%3E%3Cdefs%3E%3Cmask id='kemnaker-cut'%3E%3Crect width='1000' height='1000' fill='white'/%3E%3Cg transform='rotate(45 500 500)' fill='black'%3E%3Crect x='232' y='132' width='176' height='310' rx='88'/%3E%3Crect x='558' y='232' width='310' height='176' rx='88'/%3E%3Crect x='592' y='558' width='176' height='310' rx='88'/%3E%3Crect x='132' y='592' width='310' height='176' rx='88'/%3E%3C/g%3E%3C/mask%3E%3C/defs%3E%3Cg fill='%23144875'%3E%3Ccircle cx='500' cy='82' r='82'/%3E%3Ccircle cx='918' cy='500' r='82'/%3E%3Ccircle cx='500' cy='918' r='82'/%3E%3Ccircle cx='82' cy='500' r='82'/%3E%3C/g%3E%3Cg transform='rotate(45 500 500)' fill='%23144875' mask='url(%23kemnaker-cut)'%3E%3Crect x='420' y='100' width='160' height='450' rx='80'/%3E%3Crect x='450' y='420' width='450' height='160' rx='80'/%3E%3Crect x='420' y='450' width='160' height='450' rx='80'/%3E%3Crect x='100' y='420' width='450' height='160' rx='80'/%3E%3C/g%3E%3Cg transform='rotate(45 500 500)' fill='%23144875'%3E%3Crect x='250' y='150' width='140' height='220' rx='65'/%3E%3Crect x='630' y='250' width='220' height='140' rx='65'/%3E%3Crect x='610' y='630' width='140' height='220' rx='65'/%3E%3Crect x='150' y='610' width='220' height='140' rx='65'/%3E%3C/g%3E%3C/svg%3E" class="cover-logo" alt="Logo Kemnaker">
             <div class="cover-text-box">
                 <div style="font-weight: bold;">Lembar Kerja</div>
@@ -410,7 +470,7 @@
             </div>
         </div></div>
 
-        <!-- PAGE 4 (PDF 4 - HALAMAN 2): ARUS KAS (REKAP BULANAN) -->
+        <!-- PAGE 4: ARUS KAS -->
         <div class="pdf-wrapper"><div id="page4" class="pdf-page landscape-page" style="height: auto;"> 
             <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 18px;"><div>CATATAN ARUS KAS BULANAN</div><div>NAMA: <span class="out-nama font-normal uppercase"></span></div><div>ID: <span class="out-id font-normal uppercase"></span></div></div>
             <table class="table-layout">
@@ -419,7 +479,7 @@
             </table>
         </div></div>
 
-        <!-- PAGE 5 (PDF 4 - HALAMAN 3): BUKU KAS HARIAN -->
+        <!-- PAGE 5: BUKU KAS HARIAN -->
         <div class="pdf-wrapper"><div id="page5" class="pdf-page" style="height: auto;"> 
             <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 18px;"><div>RINCIAN BUKU KAS HARIAN</div><div>NAMA: <span class="out-nama font-normal uppercase"></span></div><div>ID: <span class="out-id font-normal uppercase"></span></div></div>
             <table class="table-layout">
@@ -438,7 +498,70 @@
         let lastErrorElement = null;
         let isRestoringDraft = false;
 
-        // --- NAVIGASI BEBAS ANTAR STEP (TANPA CEK VALIDASI) ---
+        // --- DATA CONTOH / PANDUAN DRIVE (FORMAT /preview) ---
+        const exampleData = {
+            'ide': {
+                title: 'Contoh Pengisian: Ide Usaha',
+                url: 'https://drive.google.com/file/d/1rg1aqFZHH3uMJ_ay59JDn9fsL6YA5IPD/preview'
+            },
+            'rencana': {
+                title: 'Contoh Pengisian: Rencana Aksi SMART',
+                url: 'https://drive.google.com/file/d/1q6Ij--R_Aur7vZa2kKBsCadfZo2PDUGt/preview'
+            },
+            'pemasaran': {
+                title: 'Contoh Pengisian: Strategi Pemasaran 4P',
+                url: 'https://drive.google.com/file/d/1BLSco_91VwDvN5DmJ4VCZXCgDvVnjlDo/preview'
+            },
+            'keuangan': {
+                title: 'Contoh Pengisian: Laporan Keuangan / Buku Kas',
+                url: 'https://drive.google.com/file/d/1so1zAq2GXZJdT7TTLTTdLFmVnd8dB6vM/preview'
+            }
+        };
+
+        function showExampleModal(category) {
+            const info = exampleData[category];
+            if (!info) return;
+            document.getElementById('preview-modal-title').innerHTML = `<i class="fa-solid fa-file-pdf mr-2 text-red-400"></i> ${info.title}`;
+            document.getElementById('drive-preview-iframe').src = info.url;
+            document.getElementById('preview-external-link').href = info.url.replace('/preview', '/view');
+            document.getElementById('drive-preview-modal').classList.remove('hidden');
+        }
+
+        function closeDrivePreviewModal() {
+            document.getElementById('drive-preview-modal').classList.add('hidden');
+            document.getElementById('drive-preview-iframe').src = '';
+        }
+
+        // --- RESET PER KATEGORI FORM ---
+        function resetCategoryForm(category) {
+            if (!confirm(`Apakah Anda yakin ingin mengosongkan form pada kategori ini?`)) return;
+
+            if (category === 'ide') {
+                ['in-ide-produk', 'in-ide-siapa', 'in-ide-alasan', 'in-ide-bahan', 'in-ide-alat', 'in-ide-skill'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) { el.value = ''; clearError(el); }
+                });
+            } else if (category === 'rencana') {
+                const tbodyRA = document.getElementById('rencana-aksi-body');
+                tbodyRA.innerHTML = '';
+                rowCountRA = 0;
+                for (let i = 0; i < 2; i++) addRowRA();
+            } else if (category === 'pemasaran') {
+                ['in-4p-target', 'in-4p-product', 'in-4p-price', 'in-4p-place', 'in-4p-promotion'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) { el.value = ''; clearError(el); }
+                });
+            } else if (category === 'keuangan') {
+                transaksiHarian = [];
+                idCounter = 0;
+                renderRiwayat();
+                kalkulasiRekap();
+            }
+            syncDataToPDF();
+            saveDraft();
+        }
+
+        // --- NAVIGASI BEBAS ANTAR STEP ---
         function openStep(stepNum) {
             currentStepIndex = stepNum;
             const stepId = 'step' + stepNum;
@@ -483,43 +606,32 @@
             }
         }
 
-        function markError(el) {
-            if (!el) return;
-            el.classList.add('input-error');
-        }
+        function markError(el) { if (!el) return; el.classList.add('input-error'); }
+        function clearError(el) { if (!el) return; el.classList.remove('input-error'); }
 
-        function clearError(el) {
-            if (!el) return;
-            el.classList.remove('input-error');
-        }
-
-        // --- ENGINE VALIDASI (HANYA DIJALANKAN SAAT KLIK DOWNLOAD) ---
+        // --- ENGINE VALIDASI ---
         function validateStep(stepNum) {
-            // Validasi Langkah 1: Identitas
             if (stepNum === 1) {
                 const nama = document.getElementById('in-nama');
                 const id = document.getElementById('in-id');
                 if (!nama.value.trim()) {
-                    openStep(1);
-                    markError(nama);
-                    showValidationModal('Identitas Belum Lengkap', 'Mohon isi <b>Nama Lengkap (TKMP)</b> pada Langkah 1 terlebih dahulu sebelum mengunduh laporan.', nama);
+                    openStep(1); markError(nama);
+                    showValidationModal('Identitas Belum Lengkap', 'Mohon isi <b>Nama Lengkap (TKMP)</b> pada Langkah 1 terlebih dahulu.', nama);
                     return false;
                 }
                 if (!id.value.trim()) {
-                    openStep(1);
-                    markError(id);
-                    showValidationModal('Identitas Belum Lengkap', 'Mohon isi <b>Nomor ID TKMP</b> pada Langkah 1 terlebih dahulu sebelum mengunduh laporan.', id);
+                    openStep(1); markError(id);
+                    showValidationModal('Identitas Belum Lengkap', 'Mohon isi <b>Nomor ID TKMP</b> pada Langkah 1 terlebih dahulu.', id);
                     return false;
                 }
                 return true;
             }
 
-            // Validasi Langkah 2: Ide Usaha
             if (stepNum === 2) {
                 const fields = [
                     { id: 'in-ide-produk', label: 'Produk dan Merek Produk' },
                     { id: 'in-ide-siapa', label: 'Target Pembeli' },
-                    { id: 'in-ide-alasan', label: 'Alasan Orang Membeli (Hasil Riset Pasar)' },
+                    { id: 'in-ide-alasan', label: 'Alasan Orang Membeli' },
                     { id: 'in-ide-bahan', label: 'Bahan Baku yang Dibutuhkan' },
                     { id: 'in-ide-alat', label: 'Peralatan yang Dibutuhkan' },
                     { id: 'in-ide-skill', label: 'Keterampilan yang Dibutuhkan' }
@@ -527,21 +639,19 @@
                 for (let f of fields) {
                     const el = document.getElementById(f.id);
                     if (!el.value.trim()) {
-                        openStep(2);
-                        markError(el);
-                        showValidationModal('Form Ide Usaha Belum Lengkap', `Kolom <b>"${f.label}"</b> pada Langkah 2 masih kosong. Harap lengkapi terlebih dahulu sebelum mengunduh PDF.`, el);
+                        openStep(2); markError(el);
+                        showValidationModal('Form Ide Usaha Belum Lengkap', `Kolom <b>"${f.label}"</b> pada Langkah 2 masih kosong. Harap lengkapi terlebih dahulu.`, el);
                         return false;
                     }
                 }
                 return true;
             }
 
-            // Validasi Langkah 3: Rencana Bisnis (MINIMAL 2 BARIS KEGIATAN)
             if (stepNum === 3) {
                 const rows = document.querySelectorAll('#rencana-aksi-body tr');
                 if (rows.length < 2) {
                     openStep(3);
-                    showValidationModal('Rencana Bisnis Kurang', 'Wajib mengisi minimal <b>2 baris Rencana Kegiatan</b> pada Langkah 3. Silakan klik tombol <b>Tambah Kegiatan Baru</b>.');
+                    showValidationModal('Rencana Bisnis Kurang', 'Wajib mengisi minimal <b>2 baris Rencana Kegiatan</b> pada Langkah 3.');
                     return false;
                 }
                 for (let i = 0; i < rows.length; i++) {
@@ -549,13 +659,8 @@
                     const colNames = ['Nama Kegiatan', 'Rincian Kegiatan', 'Bulan / Waktu', 'Anggaran (RAB)'];
                     for (let j = 0; j < textareas.length; j++) {
                         if (!textareas[j].value.trim()) {
-                            openStep(3);
-                            markError(textareas[j]);
-                            showValidationModal(
-                                'Rencana Bisnis Belum Lengkap',
-                                `Pada Langkah 3 <b>Baris ke-${i + 1}</b>, kolom <b>"${colNames[j]}"</b> masih kosong. Harap isi seluruh kolom pada minimal 2 baris kegiatan.`,
-                                textareas[j]
-                            );
+                            openStep(3); markError(textareas[j]);
+                            showValidationModal('Rencana Bisnis Belum Lengkap', `Pada Langkah 3 <b>Baris ke-${i + 1}</b>, kolom <b>"${colNames[j]}"</b> masih kosong.`, textareas[j]);
                             return false;
                         }
                     }
@@ -563,7 +668,6 @@
                 return true;
             }
 
-            // Validasi Langkah 4: Pemasaran 4P
             if (stepNum === 4) {
                 const fields = [
                     { id: 'in-4p-target', label: 'Target Pelanggan Utama' },
@@ -575,41 +679,26 @@
                 for (let f of fields) {
                     const el = document.getElementById(f.id);
                     if (!el.value.trim()) {
-                        openStep(4);
-                        markError(el);
-                        showValidationModal('Pemasaran (4P) Belum Lengkap', `Kolom <b>"${f.label}"</b> pada Langkah 4 masih kosong. Harap lengkapi terlebih dahulu sebelum mengunduh PDF.`, el);
+                        openStep(4); markError(el);
+                        showValidationModal('Pemasaran (4P) Belum Lengkap', `Kolom <b>"${f.label}"</b> pada Langkah 4 masih kosong.`, el);
                         return false;
                     }
                 }
                 return true;
             }
 
-            // Validasi Langkah 5: Buku Kas (Tidak ada syarat minimal bulan, hanya cek isi transaksi jika ada)
-            if (stepNum === 5) {
-                return true;
-            }
-
             return true;
         }
 
-        // Validasi dinamis sesuai opsi file yang dipilih user
         function validateForSelectedDownload(downloadType) {
             if (!validateStep(1)) return false;
-
             if (downloadType === 'all') {
-                for (let s = 2; s <= 5; s++) {
-                    if (!validateStep(s)) return false;
-                }
+                for (let s = 2; s <= 5; s++) { if (!validateStep(s)) return false; }
                 return true;
-            } else if (downloadType === 'ide') {
-                return validateStep(2);
-            } else if (downloadType === 'rencana') {
-                return validateStep(3);
-            } else if (downloadType === 'pemasaran') {
-                return validateStep(4);
-            } else if (downloadType === 'keuangan') {
-                return validateStep(5);
-            }
+            } else if (downloadType === 'ide') { return validateStep(2); }
+            else if (downloadType === 'rencana') { return validateStep(3); }
+            else if (downloadType === 'pemasaran') { return validateStep(4); }
+            else if (downloadType === 'keuangan') { return validateStep(5); }
             return true;
         }
 
@@ -626,21 +715,14 @@
             btnText.innerText = labels[type] || 'DOWNLOAD PDF SEKARANG';
         }
 
-        // --- FITUR AUTO-SAVE DRAF (LOCALSTORAGE) ---
+        // --- FITUR AUTO-SAVE DRAF ---
         function saveDraft() {
             if (isRestoringDraft) return;
             try {
                 const raRows = [];
                 document.querySelectorAll('#rencana-aksi-body tr').forEach(tr => {
                     const t = tr.querySelectorAll('textarea');
-                    if (t.length === 4) {
-                        raRows.push({
-                            keg: t[0].value,
-                            rin: t[1].value,
-                            wak: t[2].value,
-                            rab: t[3].value
-                        });
-                    }
+                    if (t.length === 4) { raRows.push({ keg: t[0].value, rin: t[1].value, wak: t[2].value, rab: t[3].value }); }
                 });
 
                 const draftData = {
@@ -665,20 +747,16 @@
                 };
 
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(draftData));
-                
                 const statusEl = document.getElementById('autosave-status');
                 if (statusEl) {
                     statusEl.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-green-600"></i> <span>Draf tersimpan otomatis (${draftData.savedAt})</span>`;
                 }
-            } catch (e) {
-                console.warn('Gagal menyimpan draf ke localStorage:', e);
-            }
+            } catch (e) { console.warn('Gagal menyimpan draf:', e); }
         }
 
         function loadDraft() {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) return false;
-
             try {
                 isRestoringDraft = true;
                 const data = JSON.parse(raw);
@@ -698,22 +776,17 @@
                 document.getElementById('in-4p-place').value = data.p4Place || '';
                 document.getElementById('in-4p-promotion').value = data.p4Promotion || '';
 
-                // Restore Baris Rencana Aksi (Minimal 2 baris)
                 const tbodyRA = document.getElementById('rencana-aksi-body');
                 tbodyRA.innerHTML = '';
                 rowCountRA = 0;
                 if (Array.isArray(data.raRows) && data.raRows.length > 0) {
                     data.raRows.forEach(item => addRowRA(item));
-                    while (document.querySelectorAll('#rencana-aksi-body tr').length < 2) {
-                        addRowRA();
-                    }
+                    while (document.querySelectorAll('#rencana-aksi-body tr').length < 2) { addRowRA(); }
                 } else {
                     for (let i = 0; i < 2; i++) addRowRA();
                 }
 
-                if (data.settingBulan) {
-                    document.getElementById('setting-bulan').value = data.settingBulan;
-                }
+                if (data.settingBulan) { document.getElementById('setting-bulan').value = data.settingBulan; }
                 transaksiHarian = Array.isArray(data.transaksiHarian) ? data.transaksiHarian : [];
                 idCounter = typeof data.idCounter === 'number' ? data.idCounter : transaksiHarian.length;
 
@@ -722,34 +795,25 @@
 
                 const statusEl = document.getElementById('autosave-status');
                 if (statusEl && data.savedAt) {
-                    statusEl.innerHTML = `<i class="fa-solid fa-circle-check text-green-600"></i> <span>Draf terakhir berhasil dipulihkan (${data.savedAt})</span>`;
+                    statusEl.innerHTML = `<i class="fa-solid fa-circle-check text-green-600"></i> <span>Draf dipulihkan (${data.savedAt})</span>`;
                 }
-
                 isRestoringDraft = false;
                 return true;
             } catch (e) {
-                console.warn('Gagal memuat draf:', e);
                 isRestoringDraft = false;
                 return false;
             }
         }
 
-        function openResetModal() {
-            document.getElementById('reset-modal').classList.remove('hidden');
-        }
-
-        function closeResetModal() {
-            document.getElementById('reset-modal').classList.add('hidden');
-        }
+        function openResetModal() { document.getElementById('reset-modal').classList.remove('hidden'); }
+        function closeResetModal() { document.getElementById('reset-modal').classList.add('hidden'); }
 
         function confirmResetDraft() {
             localStorage.removeItem(STORAGE_KEY);
             closeResetModal();
-
             isRestoringDraft = true;
             document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea').forEach(el => {
-                el.value = '';
-                clearError(el);
+                el.value = ''; clearError(el);
             });
             document.getElementById('setting-bulan').value = '3';
             transaksiHarian = [];
@@ -763,27 +827,19 @@
             ubahJumlahBulan();
             syncDataToPDF();
             isRestoringDraft = false;
-
             openStep(1);
-            const statusEl = document.getElementById('autosave-status');
-            if (statusEl) {
-                statusEl.innerHTML = `<i class="fa-solid fa-rotate-left text-amber-600"></i> <span>Form berhasil dikosongkan ulang</span>`;
-            }
         }
 
-        // --- FORMAT RUPIAH ---
         function formatRp(angka) {
             if(!angka) return "Rp 0";
             return "Rp " + parseInt(angka).toLocaleString('id-ID');
         }
 
-        // --- AUTO RESIZE TEXTAREA RENCANA AKSI ---
         function autoResizeTextarea(el) {
             el.style.height = 'auto';
             el.style.height = (el.scrollHeight) + 'px';
         }
 
-        // --- RENCANA AKSI (MENGGUNAKAN TEXTAREA RAMAH MOBILE) ---
         let rowCountRA = 0;
         function addRowRA(prefill = null) {
             rowCountRA++;
@@ -792,21 +848,11 @@
             tr.id = `row-ra-${rowCountRA}`;
             tr.innerHTML = `
                 <td class="border p-2 text-center font-bold text-gray-500 align-top pt-3 row-number-ra"></td>
-                <td class="border p-1 align-top">
-                    <textarea id="in-ra-keg-${rowCountRA}" rows="2" class="w-full p-2 border border-gray-200 hover:border-gray-300 focus:border-green-500 rounded bg-gray-50 focus:bg-white resize-y text-sm leading-relaxed" placeholder="Nama kegiatan..." oninput="clearError(this); autoResizeTextarea(this); syncDataToPDF(); saveDraft()"></textarea>
-                </td>
-                <td class="border p-1 align-top">
-                    <textarea id="in-ra-rin-${rowCountRA}" rows="2" class="w-full p-2 border border-gray-200 hover:border-gray-300 focus:border-green-500 rounded bg-gray-50 focus:bg-white resize-y text-sm leading-relaxed" placeholder="Rincian kegiatan..." oninput="clearError(this); autoResizeTextarea(this); syncDataToPDF(); saveDraft()"></textarea>
-                </td>
-                <td class="border p-1 align-top">
-                    <textarea id="in-ra-wak-${rowCountRA}" rows="2" class="w-full p-2 border border-gray-200 hover:border-gray-300 focus:border-green-500 rounded bg-gray-50 focus:bg-white resize-y text-sm leading-relaxed" placeholder="Estimasi waktu..." oninput="clearError(this); autoResizeTextarea(this); syncDataToPDF(); saveDraft()"></textarea>
-                </td>
-                <td class="border p-1 align-top">
-                    <textarea id="in-ra-rab-${rowCountRA}" rows="2" class="w-full p-2 border border-gray-200 hover:border-gray-300 focus:border-green-500 rounded bg-gray-50 focus:bg-white resize-y text-sm leading-relaxed" placeholder="Rp..." oninput="clearError(this); autoResizeTextarea(this); syncDataToPDF(); saveDraft()"></textarea>
-                </td>
-                <td class="border p-2 text-center align-top pt-3">
-                    <button onclick="removeRowRA(${rowCountRA})" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition" title="Hapus Baris"><i class="fa-solid fa-trash"></i></button>
-                </td>
+                <td class="border p-1 align-top"><textarea id="in-ra-keg-${rowCountRA}" rows="2" class="w-full p-2 border border-gray-200 hover:border-gray-300 focus:border-green-500 rounded bg-gray-50 focus:bg-white resize-y text-sm leading-relaxed" placeholder="Nama kegiatan..." oninput="clearError(this); autoResizeTextarea(this); syncDataToPDF(); saveDraft()"></textarea></td>
+                <td class="border p-1 align-top"><textarea id="in-ra-rin-${rowCountRA}" rows="2" class="w-full p-2 border border-gray-200 hover:border-gray-300 focus:border-green-500 rounded bg-gray-50 focus:bg-white resize-y text-sm leading-relaxed" placeholder="Rincian kegiatan..." oninput="clearError(this); autoResizeTextarea(this); syncDataToPDF(); saveDraft()"></textarea></td>
+                <td class="border p-1 align-top"><textarea id="in-ra-wak-${rowCountRA}" rows="2" class="w-full p-2 border border-gray-200 hover:border-gray-300 focus:border-green-500 rounded bg-gray-50 focus:bg-white resize-y text-sm leading-relaxed" placeholder="Estimasi waktu..." oninput="clearError(this); autoResizeTextarea(this); syncDataToPDF(); saveDraft()"></textarea></td>
+                <td class="border p-1 align-top"><textarea id="in-ra-rab-${rowCountRA}" rows="2" class="w-full p-2 border border-gray-200 hover:border-gray-300 focus:border-green-500 rounded bg-gray-50 focus:bg-white resize-y text-sm leading-relaxed" placeholder="Rp..." oninput="clearError(this); autoResizeTextarea(this); syncDataToPDF(); saveDraft()"></textarea></td>
+                <td class="border p-2 text-center align-top pt-3"><button onclick="removeRowRA(${rowCountRA})" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition" title="Hapus Baris"><i class="fa-solid fa-trash"></i></button></td>
             `;
             tbody.appendChild(tr);
 
@@ -817,7 +863,6 @@
                 textareas[2].value = prefill.wak || '';
                 textareas[3].value = prefill.rab || '';
             }
-
             renumberRowsRA();
             syncDataToPDF();
             saveDraft();
@@ -826,7 +871,7 @@
         function removeRowRA(id) {
             const rows = document.querySelectorAll('#rencana-aksi-body tr');
             if (rows.length <= 2) {
-                showValidationModal('Tidak Dapat Menghapus', 'Minimal harus terdapat <b>2 baris Rencana Kegiatan</b> pada tabel.');
+                showValidationModal('Tidak Dapat Menghapus', 'Minimal harus terdapat <b>2 baris Rencana Kegiatan</b>.');
                 return;
             }
             document.getElementById(`row-ra-${id}`).remove();
@@ -840,7 +885,6 @@
             cells.forEach((cell, idx) => { cell.innerText = idx + 1; });
         }
 
-        // --- BUKU KAS HARIAN & REKAP BULANAN ---
         let colBulan = 3;
         let transaksiHarian = []; 
         let idCounter = 0;
@@ -862,23 +906,12 @@
             let ket = ketEl.value.trim();
             let nominal = parseFloat(nominalEl.value);
 
-            if(!ket) {
-                markError(ketEl);
-                showValidationModal('Keterangan Kosong', 'Mohon isi <b>Keterangan Transaksi</b> terlebih dahulu!', ketEl);
-                return;
-            }
-            if(!nominal || nominal <= 0) {
-                markError(nominalEl);
-                showValidationModal('Nominal Tidak Valid', 'Mohon isi <b>Nominal (Rp)</b> dengan angka lebih dari 0!', nominalEl);
-                return;
-            }
+            if(!ket) { markError(ketEl); showValidationModal('Keterangan Kosong', 'Mohon isi Keterangan Transaksi!', ketEl); return; }
+            if(!nominal || nominal <= 0) { markError(nominalEl); showValidationModal('Nominal Tidak Valid', 'Mohon isi Nominal lebih dari 0!', nominalEl); return; }
 
             idCounter++;
             transaksiHarian.push({ id: idCounter, bulan: bulan, tgl: tgl, jenis: jenis, ket: ket, nominal: nominal });
-
-            ketEl.value = '';
-            nominalEl.value = '';
-            ketEl.focus();
+            ketEl.value = ''; nominalEl.value = ''; ketEl.focus();
             renderRiwayat(); kalkulasiRekap(); saveDraft();
         }
 
@@ -918,13 +951,11 @@
                 if (t.jenis === 'keluar') totalKeluarBulan[t.bulan - 1] += t.nominal;
             });
 
-            // Saldo akhir bulan sebelumnya otomatis menjadi Kas Masih bulan berikutnya.
             for (let b = 0; b < colBulan; b++) {
                 kasMasihBulan[b] = b === 0 ? 0 : saldoAkhirBulan[b - 1];
                 saldoAkhirBulan[b] = kasMasihBulan[b] + totalMasukBulan[b] - totalKeluarBulan[b];
             }
 
-            // Preview rekapitulasi
             let uiHtml = `<thead><tr class="bg-blue-100 text-blue-800"><th class="border p-3 text-left w-1/3">Keterangan</th>`;
             for (let b = 1; b <= colBulan; b++) uiHtml += `<th class="border p-3 text-right">Bulan ${b}</th>`;
             uiHtml += `</tr></thead><tbody>`;
@@ -957,7 +988,6 @@
             uiHtml += `</tr></tbody>`;
             document.getElementById('table-rekap-preview').innerHTML = uiHtml;
 
-            // Rekap arus kas pada PDF
             let pdfHead = `<tr style="background: #f8f9fa;"><th style="text-align: left; width: ${100 - (colBulan * (60 / colBulan))}%;">Keterangan</th>`;
             for (let b = 1; b <= colBulan; b++) pdfHead += `<th style="width: ${60 / colBulan}%;">Bulan ${b}</th>`;
             pdfHead += `</tr>`;
@@ -1008,7 +1038,6 @@
 
         function syncDataToPDF() {
             const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ""; };
-            
             document.querySelectorAll('.out-nama').forEach(el => el.innerText = getVal('in-nama'));
             document.querySelectorAll('.out-id').forEach(el => el.innerText = getVal('in-id'));
 
@@ -1040,15 +1069,8 @@
 
         window.jsPDF = window.jspdf.jsPDF;
         
-        function showPdfContainer() {
-            const container = document.getElementById('pdf-container');
-            container.classList.remove('w-0', 'h-0', 'opacity-0', 'pointer-events-none', '-z-50', 'overflow-hidden');
-        }
-
-        function hidePdfContainer() {
-            const container = document.getElementById('pdf-container');
-            container.classList.add('w-0', 'h-0', 'opacity-0', 'pointer-events-none', '-z-50', 'overflow-hidden');
-        }
+        function showPdfContainer() { document.getElementById('pdf-container').classList.remove('w-0', 'h-0', 'opacity-0', 'pointer-events-none', '-z-50', 'overflow-hidden'); }
+        function hidePdfContainer() { document.getElementById('pdf-container').classList.add('w-0', 'h-0', 'opacity-0', 'pointer-events-none', '-z-50', 'overflow-hidden'); }
 
         function addCanvasToCurrentPage(pdf, canvas) {
             let pdfWidth = pdf.internal.pageSize.getWidth();
@@ -1080,7 +1102,6 @@
             pdf.addPage('a4', orientation);
             pdf.setPage(2);
             addCanvasToCurrentPage(pdf, contentCanvas);
-
             pdf.save(filename);
         }
 
@@ -1106,23 +1127,19 @@
             pdf.addPage('a4', 'portrait');
             pdf.setPage(3);
             addCanvasToCurrentPage(pdf, canvas2);
-
             pdf.save(filename);
         }
 
         async function prosesExport() {
             const downloadType = document.getElementById('select-download-type').value;
-
-            if (!validateForSelectedDownload(downloadType)) {
-                return;
-            }
+            if (!validateForSelectedDownload(downloadType)) return;
 
             syncDataToPDF();
             const cleanName = `${document.getElementById('in-id').value || 'ID'}_${document.getElementById('in-nama').value || 'TKMP'}`.replace(/\s+/g, '_');
             const btn = document.getElementById('btn-export');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xl md:text-2xl mr-2"></i> MEMPROSES PDF... (MOHON TUNGGU)';
-            btn.disabled = true; btn.classList.replace('from-blue-600', 'from-gray-500'); btn.classList.replace('to-indigo-600', 'to-gray-600');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xl md:text-2xl mr-2"></i> MEMPROSES PDF...';
+            btn.disabled = true;
 
             try {
                 if (downloadType === 'all') {
@@ -1130,35 +1147,25 @@
                     await processPDF('page2', `2_RencanaAksi_${cleanName}.pdf`, 'portrait'); await new Promise(r => setTimeout(r, 600));
                     await processPDF('page3', `3_Pemasaran4P_${cleanName}.pdf`, 'portrait'); await new Promise(r => setTimeout(r, 600));
                     await processCombinedPDF('page4', 'page5', `4_LaporanKeuangan_${cleanName}.pdf`);
-                } else if (downloadType === 'ide') {
-                    await processPDF('page1', `1_IdeUsaha_${cleanName}.pdf`, 'portrait');
-                } else if (downloadType === 'rencana') {
-                    await processPDF('page2', `2_RencanaAksi_${cleanName}.pdf`, 'portrait');
-                } else if (downloadType === 'pemasaran') {
-                    await processPDF('page3', `3_Pemasaran4P_${cleanName}.pdf`, 'portrait');
-                } else if (downloadType === 'keuangan') {
-                    await processCombinedPDF('page4', 'page5', `4_LaporanKeuangan_${cleanName}.pdf`);
-                }
+                } else if (downloadType === 'ide') { await processPDF('page1', `1_IdeUsaha_${cleanName}.pdf`, 'portrait'); }
+                else if (downloadType === 'rencana') { await processPDF('page2', `2_RencanaAksi_${cleanName}.pdf`, 'portrait'); }
+                else if (downloadType === 'pemasaran') { await processPDF('page3', `3_Pemasaran4P_${cleanName}.pdf`, 'portrait'); }
+                else if (downloadType === 'keuangan') { await processCombinedPDF('page4', 'page5', `4_LaporanKeuangan_${cleanName}.pdf`); }
                 
                 btn.innerHTML = '<i class="fa-solid fa-check text-xl md:text-2xl mr-2"></i> BERHASIL DIUNDUH!';
-                btn.classList.replace('from-gray-500', 'from-green-500'); btn.classList.replace('to-gray-600', 'to-green-600');
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
                     updateDownloadButtonLabel();
                     btn.disabled = false;
-                    btn.classList.replace('from-green-500', 'from-blue-600'); btn.classList.replace('to-green-600', 'to-indigo-600');
                 }, 3000);
-
             } catch (error) {
                 alert('Terjadi kesalahan saat mengunduh PDF.');
                 btn.innerHTML = originalHTML;
                 updateDownloadButtonLabel();
                 btn.disabled = false;
-                btn.classList.replace('from-gray-500', 'from-blue-600'); btn.classList.replace('to-gray-600', 'to-indigo-600');
             }
         }
 
-        // --- INISIALISASI AWAL & PEMULIHAN DRAF ---
         if (!loadDraft()) {
             for(let i=0; i<2; i++) addRowRA(); 
             ubahJumlahBulan();
@@ -1168,7 +1175,5 @@
             if (event.key === "Enter") { event.preventDefault(); tambahTransaksiHarian(); }
         });
     </script>
-
-<script src="https://static.app/js/static.js" type="text/javascript"></script>
 </body>
 </html>
